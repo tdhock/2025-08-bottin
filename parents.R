@@ -37,7 +37,7 @@ nc::capture_first_df(tel_ok, tel=list(
   "[- ]*",
   station="[0-9]{4}",
   "$"
-))[, norm_tel := sprintf("(%s)%s-%s", area, exchange, station)]
+))[, norm_tel := sprintf("%s %s-%s", area, exchange, station)]
 
 courriel_ok <- parents_in[
 , .(Prénom, Nom, consentement, Courriel)
@@ -45,11 +45,11 @@ courriel_ok <- parents_in[
 
 contact_ok <- rbind(
   tel_ok[, .(
-    Prénom, Nom, contact=ifelse(
+    Prénom, Nom, variable="télephone", contact=ifelse(
       type=="", norm_tel, sprintf("%s:%s", type, norm_tel))
   )],
   courriel_ok[, .(
-    Prénom, Nom, contact=Courriel
+    Prénom, Nom, variable="courriel", contact=Courriel
   )]
 )
 

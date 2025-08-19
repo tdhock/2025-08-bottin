@@ -1,0 +1,34 @@
+---
+title: "Bottin"
+format:
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+---
+
+```{r, echo=FALSE, output='asis'}
+library(data.table)
+etudiants_pages <- fread("etudiants_pages.csv")
+etudiants_parents <- fread("etudiants_parents.csv")
+parents <- fread("parents.csv")
+profs <- fread("Consentement à partager les coordonnées 25-26 - profs.csv")
+pages_avec_parents <- etudiants_parents[etudiants_pages, on=.(nom, prénom)]
+pages_avec_contacts <- parents[pages_avec_parents, on=.(Prénom, Nom)]
+for(p in unique(pages_avec_contacts$page)){
+  one_page <- pages_avec_contacts[page==p]
+  one_prof <- profs[page==p]
+  rm_same <- function(x)ifelse(c(FALSE, x[-1]==x[-length(x)]), "", x)
+  na <- function(x)ifelse(is.na(x), "", x)
+  one_prof[, cat(sprintf("## Prof. %s %s, année(s) %s", prénom, nom, années))]
+  out_dt <- one_page[, .(
+    Élève=rm_same(paste(prénom, nom)),
+    Parent=rm_same(paste(na(Prénom), na(Nom))),
+    Contact=na(contact))]
+  lines_int <- which(out_dt$Élève != "")
+  ## hline_after = TRUE) ## does not work?? https://stackoverflow.com/questions/53655983 try https://ardata-fr.github.io/flextable-book/rendering.html
+  ## knitr::knit_print(flextable::as_flextable(out_dt))
+  kab_obj <- knitr::kable(out_dt)
+  print(kab_obj)
+}
+```
