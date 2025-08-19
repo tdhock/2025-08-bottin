@@ -1,4 +1,5 @@
-parents_in <- fread("Consentement à partager les coordonnées 25-26 - parents.csv")
+library(data.table)
+parents_in <- fread("Consentement à partager les coordonnées 25-26 - étudiants standardisés.csv")
 ##timestamp = horodotage
 parents_in[, .(count=.N), by=.(Nom,Prénom)][count>1] #Nom,Prénom ok pour ID de parent.
 grep("[^0-9]", parents_in$Téléphone, value=TRUE)
@@ -53,14 +54,3 @@ contact_ok <- rbind(
 )
 
 fwrite(contact_ok, "parents.csv")
-
-measure.vars <- which(names(parents_in)=="Prénom, Nom")
-etudiants_doublon <- melt(
-  parents_in,
-  value.name="etudiant",
-  measure.vars=measure.vars,
-  id.vars=c(
-    "Prénom", "Nom", "Courriel", "Téléphone",
-    "Quelles informations consentez-vous à partager au bottin de la communauté?")
-)[etudiant != ""]
-etudiants_doublon$etudiant
