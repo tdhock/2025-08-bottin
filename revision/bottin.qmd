@@ -1,0 +1,29 @@
+---
+title: "Bottin"
+format:
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+---
+
+```{r, echo=FALSE, output='asis'}
+library(data.table)
+etudiants_parents <- fread("etudiants_parents.csv")[Courriel!="christine_beaupre@yahh.com"]
+for(p in unique(etudiants_parents$page)){
+  one_page <- etudiants_parents[page==p]
+  rm_same <- function(x)ifelse(c(FALSE, x[-1]==x[-length(x)]), "", x)
+  na <- function(x)ifelse(is.na(x), "", x)
+  cat(sprintf("## Page/classe %d\n", p))
+  out_dt <- unique(one_page)[, .(
+    étudiant=rm_same(étudiant),
+    parent=rm_same(parent),
+    Tél,
+    Courriel)]
+  lines_int <- which(out_dt$Élève != "")
+  ## hline_after = TRUE) ## does not work?? https://stackoverflow.com/questions/53655983 try https://ardata-fr.github.io/flextable-book/rendering.html
+  ## knitr::knit_print(flextable::as_flextable(out_dt))
+  kab_obj <- knitr::kable(out_dt)
+  print(kab_obj)
+}
+```
